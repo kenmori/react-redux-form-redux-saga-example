@@ -1,9 +1,8 @@
 
 
-import { select, takeEvery, takeLatest, call, fork, put } from 'redux-saga/effects';
-import axios from 'axios';
-import {startSubmit, stopSubmit, reset} from 'redux-form';
-import actionTypes from '../actions/actionTypes';
+import { takeLatest, call, fork, put } from 'redux-saga/effects';
+import { startSubmit, stopSubmit } from 'redux-form';
+
 
 function submitToServer(data){
    return fetch('http://localhost:3000/comments', {

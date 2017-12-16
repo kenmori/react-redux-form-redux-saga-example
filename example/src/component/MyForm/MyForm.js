@@ -1,12 +1,16 @@
-import { connect } from 'react-redux' ;
-import { reduxForm } from 'redux-form';
+import React from 'react';
+import { Field, reduxForm, SubmissionError} from 'redux-form';
+import {FormLabel} from '../FormLabel';
+// import asyncValidate from '../../actions/acyncValidation';
 
 
-const submit = ({corporateName = '', userName ='', userNameKana = '', mailAddress ='', tel = '', contact = ''}, submitAction, reset ) => {
-    let error = {},
+import 'object-assign';
+
+const submit = ({corporateName = '', userName='', userNameKana='', mailAddress='', tel='', content='' }, submitAction, reset) => {
+    let error = {};
     let isError = false;
-    if(corporateName.trim() === ''){
-        error.corporateName = '企業名を入れてください';
+    if(corporateName.trim() === '') {
+        error.corporateName = '企業名を入力してください';
         isError = true;
     }
     if(userName.trim() === '') {
@@ -40,22 +44,32 @@ const submit = ({corporateName = '', userName ='', userNameKana = '', mailAddres
     if (isError) {
         console.log(isError, 'Errorです');
         throw new SubmissionError(error);
+
     } else {
-        submitAction({})
+        console.log(isError, 'Errorはないです');
+        submitAction({corporateName, userName, userNameKana, mailAddress, tel, content});
+        window.alert(`送信しました:\n\n${JSON.stringify({corporateName, userName, userNameKana, mailAddress, tel, content}, null, 2)}`)
+        reset();
     }
+};
 
-}
 
+const renderFieldTextarea = ({type, placeholder,label, input, textarea, meta: {touched, error}}) => (
+<span className='field'>
+    <textarea {...input} type={type} className='' placeholder={placeholder} />
+    {touched && error && <span className='error'>{error}</span>}
+</span>
+);
 
-const renderField = (field) => {
-    return (
-        <input {field.input} type={field.type} placeholder={field.placeholder} />
-        {field.meta.touched && field.meta.error && <span className='error'>{field.meta.error}</span>}
-    )
-}
+const renderField = ({type,placeholder,  label, input,  meta: {touched, error}}) => (
+<span className='field'>
+    <input {...input} type={type} className='' placeholder={placeholder} />
+    {touched && error && <span className='error'>{error}</span>}
+</span>
+);
 
-const ContactformFunc = ({asyncValidating, handleSubmit, submitAction, pristine, submitting, reset}) => (
-    <form  onSubmit={handleSubmit( fields ) => submit(fields, submitAction, reset)} id='form1'>
+const ContactFormFunc = ({asyncValidating, handleSubmit, submitAction,  pristine, submitting, reset}) => (
+<form onSubmit={handleSubmit((fields) => submit(fields, submitAction, reset))} id='form1' className='mLabForm'>
     <div className='form-row'>
     <FormLabel labelName={'corporateName'} fieldName={'企業名'} isRequire={true} />
     <Field component={renderField} type='text' placeholder='' name='corporateName' id='corporateName' />
@@ -70,7 +84,7 @@ const ContactformFunc = ({asyncValidating, handleSubmit, submitAction, pristine,
     </div>
     <div className='form-row'>
     <FormLabel labelName={'mailAddress'} fieldName={'メールアドレス'} isRequire={true} />
-    <Field component={renderField} type='input' placeholder='abcdef@mlab.com' name='mailAddress' id='mailAddress' />
+    <Field component={renderField} type='email' placeholder='abcdef@mlab.com' name='mailAddress' id='mailAddress' />
     </div>
     <div className='form-row'>
     <FormLabel labelName={'tel'} fieldName={'電話番号'} isRequire={false} />
@@ -80,16 +94,14 @@ const ContactformFunc = ({asyncValidating, handleSubmit, submitAction, pristine,
     <FormLabel labelName={'content'} fieldName={'お問い合わせ内容'} isRequire={true} />
     <Field component={renderFieldTextarea} type='text' placeholder='こちらにお問い合わせ内容をご記入ください。' name='content' id='content' />
     </div>
-    <div className={`submitBtn ${submitting} u-mt30 u-mb80`}><button type='submit' disabled={submitting}>お問い合わせする</button></div>
+    <div className={`submitBtn u-mt30 u-mb80`}>
+        <button type='submit'>お問い合わせする</button>
+    </div>
     </form>
 )
 
-
 const ContactForm = reduxForm({
     form: 'contact',
-    ayncValidate,
+})(ContactFormFunc);
 
-})(ContactformFunc);
-
-export default Contactform;
-
+export default ContactForm;
