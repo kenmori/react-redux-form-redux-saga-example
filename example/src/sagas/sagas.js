@@ -5,35 +5,35 @@ import axios from 'axios';
 import {startSubmit, stopSubmit, reset} from 'redux-form';
 import actionTypes from '../actions/actionTypes';
 
-
-function callSubmit(data){
-    return fetch('/local/fafa', {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(res => res.json()).catch(error => error);
+function submitToServer(data){
+   return fetch('http://localhost:3000/comments', {
+       method: 'POST',
+       headers: {
+           'Content-type' : 'application/json'
+       },
+       body: JSON.stringify(data)
+   }).then( res => res.json()).catch(error => console.error(error));
 }
 
-function* submitToServer(action){
+function* callSubmit(action){
     yield put(startSubmit('contact'));
-    const result = yield call(callSubmit, action.data);
-    if(result.error){
-      yield   put({type: "Sucess"});
+    let errors = {};
+    const result = yield call(submitToServer, action.data);
+    if(result.errors){
+        yield put({ type: 'REQUEST_FAILED', errors: result.errors});
     } else {
-       yield put({type: "Sucess"});
+       yield put({ type: 'REQUEST_SUCCESSFULL'});
     }
-    yield put(stopSubmit('contact'));
+    yield put(stopSubmit('contact', errors));
 }
 
 function* submitSaga(){
-    yield takeLatest('REQUEST', submitToServer);
+   yield takeLatest('REQUEST_SUBMIT', callSubmit);
 }
-
 
 export function* rootSaga(){
     yield [
         fork(submitSaga)
     ]
 }
+
