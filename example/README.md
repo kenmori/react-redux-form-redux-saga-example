@@ -24,11 +24,16 @@ npm i
 
 ```bash
 json-server db.json
+server running
+http://localhost:3000/comments
 ```
 
 ###4
 
 ```bash
 npm start
+
+server running
+http://localhost:3001/
 ```
 
